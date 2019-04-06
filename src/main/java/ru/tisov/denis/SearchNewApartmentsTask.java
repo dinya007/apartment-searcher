@@ -38,7 +38,7 @@ public class SearchNewApartmentsTask {
         this.bot = bot;
     }
 
-    @Scheduled(initialDelay = 0, fixedRate = 300000)
+    @Scheduled(initialDelay = 0, fixedRate = 3_600_000)
     public void reportCurrentTime() throws IOException {
         Set<String> newIds = getResults(LocalDate.now());
         newIds.addAll(getResults(LocalDate.of(2019, Month.MAY, 1)));
