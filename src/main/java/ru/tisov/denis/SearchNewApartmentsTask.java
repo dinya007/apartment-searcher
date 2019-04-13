@@ -40,8 +40,14 @@ public class SearchNewApartmentsTask {
 
     @Scheduled(initialDelay = 0, fixedRate = 3_600_000)
     public void reportCurrentTime() throws IOException {
-        Set<String> newIds = getResults(LocalDate.now());
-        newIds.addAll(getResults(LocalDate.of(2019, Month.MAY, 1)));
+        LocalDate searchDate = LocalDate.now();
+
+        Set<String> newIds = getResults(searchDate);
+
+        while (searchDate.getMonth() != Month.JUNE) {
+            searchDate = searchDate.plusDays(5);
+            newIds.addAll(getResults(searchDate));
+        }
 
         createFileIfNotExist();
         List<String> oldIds = Files.lines(Paths.get(apartmentsPath)).collect(Collectors.toList());
