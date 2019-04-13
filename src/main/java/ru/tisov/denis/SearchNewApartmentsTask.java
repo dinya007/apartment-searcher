@@ -20,6 +20,7 @@ import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -75,7 +76,7 @@ public class SearchNewApartmentsTask {
     private Set<String> getResults(LocalDate from) {
         String url = "https://wunderflats.com/api/regions/13.250200376,52.524710051;13.372938260,52.478208733/query?minAccommodates=1&maxPrice=100000&bbox=13.250200376,52.524710051%3B13.372938260,52.478208733&availableFrom=" + dateFormat.format(from) + "&itemsPerPage=30";
         WunderflatsResult results = restTemplate.getForObject(url, WunderflatsResult.class);
-        return results != null ? results.getItems().stream().map(Item::getId).collect(Collectors.toSet()) : new HashSet<>();
+        return results != null ? results.getItems().stream().map(Item::getId).filter(Objects::nonNull).collect(Collectors.toSet()) : new HashSet<>();
     }
 
     private RestTemplate restTemplate() {
