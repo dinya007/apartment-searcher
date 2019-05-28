@@ -18,6 +18,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -45,7 +46,7 @@ public class SearchNewApartmentsTask {
 
         Set<String> newIds = getResults(searchDate);
 
-        while (searchDate.getMonth() != Month.JUNE) {
+        while (searchDate.getMonth() != Month.NOVEMBER) {
             searchDate = searchDate.plusDays(5);
             newIds.addAll(getResults(searchDate));
         }
@@ -59,7 +60,7 @@ public class SearchNewApartmentsTask {
             return;
         }
 
-        StringBuilder message = new StringBuilder("Новые квартиры на wunderflats.com: \n");
+        StringBuilder message = new StringBuilder("Новые квартиры: \n");
 
         int i = 0;
         for (String id : newIds) {
@@ -74,9 +75,19 @@ public class SearchNewApartmentsTask {
     }
 
     private Set<String> getResults(LocalDate from) {
-        String url = "https://wunderflats.com/api/regions/13.250200376,52.524710051;13.372938260,52.478208733/query?minAccommodates=1&maxPrice=100000&bbox=13.250200376,52.524710051%3B13.372938260,52.478208733&availableFrom=" + dateFormat.format(from) + "&itemsPerPage=30";
+        Set<String> results = getResultsFromWunderflats(from);
+        results.addAll(getResultsFromComingHome(from));
+        return results;
+    }
+
+    private Set<String> getResultsFromWunderflats(LocalDate from) {
+        String url = "https://wunderflats.com/api/regions/13.250200376,52.524710051;13.372938260,52.478208733/query?minAccommodates=2&maxPrice=120000&bbox=13.250200376,52.524710051%3B13.372938260,52.478208733&availableFrom=" + dateFormat.format(from) + "&itemsPerPage=30";
         WunderflatsResult results = restTemplate.getForObject(url, WunderflatsResult.class);
         return results != null ? results.getItems().stream().map(Item::getId).filter(Objects::nonNull).collect(Collectors.toSet()) : new HashSet<>();
+    }
+
+    private Set<String> getResultsFromComingHome(LocalDate from) {
+        return Collections.emptySet();
     }
 
     private RestTemplate restTemplate() {
