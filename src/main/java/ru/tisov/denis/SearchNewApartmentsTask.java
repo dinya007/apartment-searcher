@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -40,7 +41,7 @@ public class SearchNewApartmentsTask {
         this.bot = bot;
     }
 
-    @Scheduled(initialDelay = 0, fixedRate = 3_600_000)
+    @Scheduled(cron = "0 0 * * * *")
     public void reportCurrentTime() throws IOException {
         LocalDate searchDate = LocalDate.now();
 
@@ -55,8 +56,13 @@ public class SearchNewApartmentsTask {
         List<String> oldIds = Files.lines(Paths.get(apartmentsPath)).collect(Collectors.toList());
         newIds.removeAll(oldIds);
 
-        if (newIds.isEmpty()) {
-            bot.sendMessage("Не найдено новых квартир");
+        if (newIds.isEmpty() && LocalDateTime.now().getHour() == 7) {
+            bot.sendMessage("Доброе утро!");
+            return;
+        }
+
+        if (newIds.isEmpty() && LocalDateTime.now().getHour() == 22) {
+            bot.sendMessage("Спокойной ночи!");
             return;
         }
 
