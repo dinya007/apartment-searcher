@@ -43,14 +43,15 @@ public class SearchNewApartmentsTask {
 
     @Scheduled(cron = "0 0 * * * *")
     public void reportCurrentTime() throws IOException {
-        LocalDate searchDate = LocalDate.now();
+        System.out.println("Start");
+        LocalDate searchDate = LocalDate.of(2019, Month.NOVEMBER, 1);
 
         Set<String> newIds = getResults(searchDate);
 
-        while (searchDate.getMonth() != Month.NOVEMBER) {
-            searchDate = searchDate.plusDays(5);
-            newIds.addAll(getResults(searchDate));
-        }
+//        while (searchDate.getMonth() != Month.NOVEMBER) {
+//            searchDate = searchDate.plusDays(5);
+//            newIds.addAll(getResults(searchDate));
+//        }
 
         createFileIfNotExist();
         List<String> oldIds = Files.lines(Paths.get(apartmentsPath)).collect(Collectors.toList());
