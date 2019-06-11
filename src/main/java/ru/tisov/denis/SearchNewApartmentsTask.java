@@ -18,6 +18,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.HashSet;
@@ -30,6 +31,9 @@ public class SearchNewApartmentsTask {
 
     private static final Logger log = LoggerFactory.getLogger(SearchNewApartmentsTask.class);
     private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final int people = 2;
+    private static final int minRooms = 2;
+    private static final int maxPrice = 120000;
 
     private final RestTemplate restTemplate = restTemplate();
     private final Bot bot;
@@ -48,22 +52,17 @@ public class SearchNewApartmentsTask {
 
         Set<String> newIds = getResults(searchDate);
 
-//        while (searchDate.getMonth() != Month.NOVEMBER) {
-//            searchDate = searchDate.plusDays(5);
-//            newIds.addAll(getResults(searchDate));
-//        }
-
         createFileIfNotExist();
         List<String> oldIds = Files.lines(Paths.get(apartmentsPath)).collect(Collectors.toList());
         newIds.removeAll(oldIds);
 
-        if (newIds.isEmpty() && LocalDateTime.now().getHour() == 7) {
-            bot.sendMessage("Доброе утро!");
-            return;
-        }
-
-        if (newIds.isEmpty() && LocalDateTime.now().getHour() == 22) {
-            bot.sendMessage("Спокойной ночи!");
+        if (newIds.isEmpty()) {
+            if (LocalDateTime.now().atZone(ZoneId.of("GMT+2")).getHour() == 7) {
+                bot.sendMessage("Доброе утро!");
+            }
+            if (LocalDateTime.now().getHour() == 22) {
+                bot.sendMessage("Спокойной ночи!");
+            }
             return;
         }
 
@@ -88,7 +87,7 @@ public class SearchNewApartmentsTask {
     }
 
     private Set<String> getResultsFromWunderflats(LocalDate from) {
-        String url = "https://wunderflats.com/api/regions/13.250200376,52.524710051;13.372938260,52.478208733/query?minAccommodates=2&maxPrice=120000&bbox=13.250200376,52.524710051%3B13.372938260,52.478208733&availableFrom=" + dateFormat.format(from) + "&itemsPerPage=30";
+        String url = "https://wunderflats.com/api/regions/13.250200376,52.524710051;13.372938260,52.478208733/query?minAccommodates=" + people + "&maxPrice=" + maxPrice + "&&minRooms=" + minRooms + "bbox=13.250200376,52.524710051%3B13.372938260,52.478208733&availableFrom=" + dateFormat.format(from) + "&itemsPerPage=30";
         WunderflatsResult results = restTemplate.getForObject(url, WunderflatsResult.class);
         return results != null ? results.getItems().stream().map(Item::getId).filter(Objects::nonNull).collect(Collectors.toSet()) : new HashSet<>();
     }
