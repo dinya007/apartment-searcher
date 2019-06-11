@@ -60,7 +60,7 @@ public class SearchNewApartmentsTask {
             if (LocalDateTime.now().atZone(ZoneId.of("GMT+2")).getHour() == 7) {
                 bot.sendMessage("Доброе утро!");
             }
-            if (LocalDateTime.now().getHour() == 22) {
+            if (LocalDateTime.now().atZone(ZoneId.of("GMT+2")).getHour() == 22) {
                 bot.sendMessage("Спокойной ночи!");
             }
             return;
