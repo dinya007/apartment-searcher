@@ -15,10 +15,7 @@ import ru.tisov.denis.dto.WunderflatsResult;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.HashSet;
@@ -56,11 +53,12 @@ public class SearchNewApartmentsTask {
         List<String> oldIds = Files.lines(Paths.get(apartmentsPath)).collect(Collectors.toList());
         newIds.removeAll(oldIds);
 
+        ZonedDateTime time = LocalDateTime.now().atZone(ZoneId.of("GMT+2"));
         if (newIds.isEmpty()) {
-            if (LocalDateTime.now().atZone(ZoneId.of("GMT+2")).getHour() == 7) {
+            if (time.getHour() == 7) {
                 bot.sendMessage("Доброе утро!");
             }
-            if (LocalDateTime.now().atZone(ZoneId.of("GMT+2")).getHour() == 22) {
+            if (time.getHour() == 22) {
                 bot.sendMessage("Спокойной ночи!");
             }
             return;
